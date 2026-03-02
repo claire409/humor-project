@@ -227,7 +227,7 @@ export default function MemeFeed({ userEmail, userId }: { userEmail: string; use
                         />
                         <div className="mt-4 space-y-1">
                           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                            JPG, PNG, WEBP, GIF, HEIC
+                            JPEG, JPG, PNG, WEBP, GIF, HEIC
                           </p>
                           <p className="text-[9px] text-slate-300 uppercase tracking-[0.2em]">
                             Max file size: 4MB

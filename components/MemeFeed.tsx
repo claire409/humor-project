@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { submitVote, processImageUpload } from '@/app/actions';
 
-type Tab = 'feed' | 'all' | 'create';
+type Tab = 'vote' | 'all' | 'create';
 
 export default function MemeFeed({ userEmail, userId }: { userEmail: string; userId: string; }) {
   const [supabase] = useState(() => createBrowserClient(
@@ -12,7 +12,7 @@ export default function MemeFeed({ userEmail, userId }: { userEmail: string; use
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ));
 
-  const [activeTab, setActiveTab] = useState<Tab>('feed');
+  const [activeTab, setActiveTab] = useState<Tab>('vote');
   const [captions, setCaptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -79,7 +79,9 @@ export default function MemeFeed({ userEmail, userId }: { userEmail: string; use
       captions = (fallbackCaptions.data as any[]) || [];
     }
 
-    const unvotedCaptions = captions.filter((c: any) => !votedIds.has(c.id));
+    const unvotedCaptions = captions
+      .filter((c: any) => !votedIds.has(c.id))
+      .filter((c: any) => typeof c?.content === 'string' && c.content.trim().length > 0);
     setCaptions(unvotedCaptions);
 
     if (showLoading) setLoading(false);
@@ -127,8 +129,12 @@ export default function MemeFeed({ userEmail, userId }: { userEmail: string; use
       captions = (fallbackCaptions.data as any[]) || [];
     }
 
+    const filtered = (captions || []).filter(
+      (c: any) => typeof c?.content === 'string' && c.content.trim().length > 0
+    );
+
     setAllVotes(votesByCaptionId);
-    setAllCaptions(captions || []);
+    setAllCaptions(filtered);
     if (showLoading) setAllLoading(false);
   }, [supabase, userId]);
 
@@ -227,7 +233,7 @@ export default function MemeFeed({ userEmail, userId }: { userEmail: string; use
 
           <div className="flex items-center gap-10">
             <div className="flex items-center gap-8">
-              {['feed', 'all', 'create'].map((tab) => (
+              {(['vote', 'all', 'create'] as Tab[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as Tab)}
@@ -251,8 +257,8 @@ export default function MemeFeed({ userEmail, userId }: { userEmail: string; use
           </div>
         </nav>
 
-        <main className="max-w-xl mx-auto py-16 px-4">
-          {activeTab === 'feed' ? (
+        <main className={`${activeTab === 'all' ? 'max-w-6xl' : 'max-w-xl'} mx-auto py-16 px-4`}>
+          {activeTab === 'vote' ? (
             <section className="space-y-12">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-24 gap-4">
